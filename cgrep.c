@@ -5,14 +5,19 @@
 #include <unistd.h> 
 #define MAX_LINE_LENGTH 256
 
+struct Flags
+{
+    int caseInsensitive;
+    int invertMatch;
+    int countMatch;
+    int showLineNum;
+};
+
 int main(int argc, char *argv[])
 {
     int option;
 
-    int caseInsensitve = 0;
-    int invertMatch = 0;
-    int countMatch = 0;
-    int showLineNum = 0;
+    struct Flags flags;
 
     int count;
     int lineNum;
@@ -20,10 +25,10 @@ int main(int argc, char *argv[])
 
     while ((option = getopt(argc, argv, "icvn")) != -1) {
         switch (option) {
-            case 'i': caseInsensitve = 1; break;
-            case 'v': invertMatch = 1; break;
-            case 'c': countMatch = 1; break;
-            case 'n': showLineNum = 1; break;
+            case 'i': flags.caseInsensitive = 1; break;
+            case 'v': flags.invertMatch = 1; break;
+            case 'c': flags.countMatch = 1; break;
+            case 'n': flags.showLineNum = 1; break;
             default:
                 fprintf(stderr, "Usage: ./cgrep \"pattern\" [-icvn] file\n");
                 return 1;
@@ -47,7 +52,7 @@ int main(int argc, char *argv[])
     regex_t reegex;
     int regFlags = REG_EXTENDED | REG_NOSUB;
 
-    if (caseInsensitve) {
+    if (flags.caseInsensitive) {
         regFlags |= REG_ICASE;
     }
 
@@ -70,7 +75,7 @@ int main(int argc, char *argv[])
             if (!regexec(&reegex, lineBuffer, 0, NULL, 0)) {
                 match = 1;
             }
-        } else if (caseInsensitve) {
+        } else if (flags.caseInsensitive) {
             if (strcasestr(lineBuffer, argv[optind]) != NULL) {
                 match = 1;
             }
@@ -80,8 +85,8 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (invertMatch != match) {
-            if (showLineNum) {
+        if (flags.invertMatch != match) {
+            if (flags.showLineNum) {
                 printf("%d:", lineNum);
             }
             printf("%s\n",lineBuffer);
@@ -90,7 +95,7 @@ int main(int argc, char *argv[])
         
     }
 
-    if (countMatch) {
+    if (flags.countMatch) {
         printf("Total Matches: %d\n", count);
     }
     
