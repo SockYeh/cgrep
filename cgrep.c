@@ -7,21 +7,64 @@
 
 struct Flags
 {
+    int useRegex;
     int caseInsensitive;
     int invertMatch;
     int countMatch;
     int showLineNum;
 };
 
+int g_count = 0;
+
+void grepFile(struct Flags flags, char pattern[], regex_t reegex, FILE *filePointer) {
+    int lineNum = 0;
+
+    char lineBuffer[MAX_LINE_LENGTH];
+    while (fgets(lineBuffer, MAX_LINE_LENGTH, filePointer) != NULL) {
+        int match = 0;
+        lineNum++;
+       
+        size_t len = strlen(lineBuffer);
+        if (len > 0 && lineBuffer[len - 1] == '\n') {
+            lineBuffer[--len] = '\0'; 
+        }
+        if (len > 0 && lineBuffer[len - 1] == '\r') {
+            lineBuffer[len - 1] = '\0';
+        }
+
+        if (flags.useRegex) {
+            if (!regexec(&reegex, lineBuffer, 0, NULL, 0)) {
+                match = 1;
+            }
+        } else if (flags.caseInsensitive) {
+            if (strcasestr(lineBuffer, pattern) != NULL) {
+                match = 1;
+            }
+        } else {
+            if (strstr(lineBuffer, pattern) != NULL) {
+                match = 1;
+            }
+        }
+
+        if (flags.invertMatch != match) {
+            if (!flags.countMatch) {
+                if (flags.showLineNum) {
+                    printf("%d:", lineNum);
+                }
+                printf("%s\n",lineBuffer);
+                
+            }
+            g_count++;
+        }
+    }
+
+}
+
 int main(int argc, char *argv[])
 {
     int option;
 
-    struct Flags flags;
-
-    int count;
-    int lineNum;
-
+    struct Flags flags = {0};
 
     while ((option = getopt(argc, argv, "icvn")) != -1) {
         switch (option) {
@@ -34,7 +77,6 @@ int main(int argc, char *argv[])
                 return 1;
         }
     }
-
 
     
     FILE *filePointer;
@@ -58,45 +100,14 @@ int main(int argc, char *argv[])
 
     int reti = regcomp(&reegex,argv[optind], regFlags);
 
-    char lineBuffer[MAX_LINE_LENGTH];
-    while (fgets(lineBuffer, MAX_LINE_LENGTH, filePointer) != NULL) {
-        int match = 0;
-        lineNum++;
-       
-        size_t len = strlen(lineBuffer);
-        if (len > 0 && lineBuffer[len - 1] == '\n') {
-            lineBuffer[--len] = '\0'; 
-        }
-        if (len > 0 && lineBuffer[len - 1] == '\r') {
-            lineBuffer[len - 1] = '\0';
-        }
+    flags.useRegex = !reti;
 
-        if (!reti) {
-            if (!regexec(&reegex, lineBuffer, 0, NULL, 0)) {
-                match = 1;
-            }
-        } else if (flags.caseInsensitive) {
-            if (strcasestr(lineBuffer, argv[optind]) != NULL) {
-                match = 1;
-            }
-        } else {
-            if (strstr(lineBuffer, argv[optind]) != NULL) {
-                match = 1;
-            }
-        }
+    char *pattern = argv[optind];
 
-        if (flags.invertMatch != match) {
-            if (flags.showLineNum) {
-                printf("%d:", lineNum);
-            }
-            printf("%s\n",lineBuffer);
-            count++;
-        }
-        
-    }
+    grepFile(flags, pattern, reegex, filePointer);
 
     if (flags.countMatch) {
-        printf("Total Matches: %d\n", count);
+        printf("Total Matches: %d\n", g_count);
     }
     
     fclose(filePointer);
