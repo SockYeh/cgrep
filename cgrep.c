@@ -17,14 +17,14 @@ int main(int argc, char *argv[])
             case 'i': caseInsensitve = 1; break;
             case 'v': invertMatch = 1; break;
             default:
-                fprintf(stderr, "Error: Unknown option %c\n", option);
+                fprintf(stderr, "Usage: ./cgrep \"pattern\" [-iv] file\n");
                 return 1;
         }
     }
 
 
     if ((argc - optind) < 2) {
-        fprintf(stderr, "Usage: ./cgrep \"pattern\" [-flags] file\n");
+        fprintf(stderr, "Usage: ./cgrep \"pattern\" [-iv] file\n");
         return 1;
     }
     
