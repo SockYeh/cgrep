@@ -40,15 +40,17 @@ int main(int argc, char *argv[])
     regex_t reegex;
     int reti = regcomp(&reegex,argv[optind], REG_EXTENDED);
 
-    char line_buffer[MAX_LINE_LENGTH];
-    while (fgets(line_buffer, MAX_LINE_LENGTH, filePointer) != NULL) {
+    char lineBuffer[MAX_LINE_LENGTH];
+    while (fgets(lineBuffer, MAX_LINE_LENGTH, filePointer) != NULL) {
         
+        lineBuffer[strcspn(lineBuffer, "\n")] = 0;
+
         if (!reti) {
-            if (!regexec(&reegex, line_buffer, 0, NULL, 0)) {
-                printf("%s",line_buffer);
+            if (!regexec(&reegex, lineBuffer, 0, NULL, 0)) {
+                printf("%s",lineBuffer);
             }
-        } else if (strstr(line_buffer, argv[1]) != NULL) {
-            printf("%s",line_buffer);
+        } else if (strstr(lineBuffer, argv[1]) != NULL) {
+            printf("%s",lineBuffer);
         }
         
     }
