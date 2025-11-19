@@ -46,21 +46,24 @@ int main(int argc, char *argv[])
 
     char lineBuffer[MAX_LINE_LENGTH];
     while (fgets(lineBuffer, MAX_LINE_LENGTH, filePointer) != NULL) {
-        
-        lineBuffer[strcspn(lineBuffer, "\n")] = 0;
-
+        int match = 0;
+       
         if (!reti) {
             if (!regexec(&reegex, lineBuffer, 0, NULL, 0)) {
-                printf("%s",lineBuffer);
+                match = 1;
             }
         } else if (caseInsensitve) {
-            if (strcasestr(lineBuffer, argv[1]) != NULL) {
-                printf("%s",lineBuffer);
+            if (strcasestr(lineBuffer, argv[optind]) != NULL) {
+                match = 1;
             }
         } else {
-            if (strstr(lineBuffer, argv[1]) != NULL) {
-                printf("%s",lineBuffer);
+            if (strstr(lineBuffer, argv[optind]) != NULL) {
+                match = 1;
             }
+        }
+
+        if (invertMatch != match) {
+            printf("%s\n",lineBuffer);
         }
         
     }
