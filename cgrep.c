@@ -10,11 +10,14 @@ int main(int argc, char *argv[])
     int caseInsensitve = 0;
     int invertMatch = 0;
     int option;
+    int countMatch;
+    int count;
 
-    while ((option = getopt(argc, argv, "iv")) != -1) {
+    while ((option = getopt(argc, argv, "icv")) != -1) {
         switch (option) {
             case 'i': caseInsensitve = 1; break;
             case 'v': invertMatch = 1; break;
+            case 'c': countMatch = 1; break;
             default:
                 fprintf(stderr, "Usage: ./cgrep \"pattern\" [-iv] file\n");
                 return 1;
@@ -72,10 +75,15 @@ int main(int argc, char *argv[])
 
         if (invertMatch != match) {
             printf("%s\n",lineBuffer);
+            count++;
         }
         
     }
 
+    if (countMatch) {
+        printf("Total Matches: %d\n", count);
+    }
+    
     fclose(filePointer);
     regfree(&reegex);
 
