@@ -48,6 +48,14 @@ int main(int argc, char *argv[])
     while (fgets(lineBuffer, MAX_LINE_LENGTH, filePointer) != NULL) {
         int match = 0;
        
+        size_t len = strlen(lineBuffer);
+        if (len > 0 && lineBuffer[len - 1] == '\n') {
+            lineBuffer[--len] = '\0'; 
+        }
+        if (len > 0 && lineBuffer[len - 1] == '\r') {
+            lineBuffer[len - 1] = '\0';
+        }
+
         if (!reti) {
             if (!regexec(&reegex, lineBuffer, 0, NULL, 0)) {
                 match = 1;
