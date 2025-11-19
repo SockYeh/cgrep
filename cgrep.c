@@ -25,17 +25,17 @@ int main(int argc, char *argv[])
     }
 
 
-    if ((argc - optind) < 2) {
-        fprintf(stderr, "Usage: ./cgrep \"pattern\" [-iv] file\n");
-        return 1;
-    }
     
     FILE *filePointer;
-    filePointer = fopen(argv[optind + 1],"r");
-    
-    if (filePointer == NULL) {
-        fprintf(stderr, "Error: Could not open file.\n");
-        return 1;
+    if ((argc - optind) < 2) {
+        filePointer = stdin;
+    } else {
+        filePointer = fopen(argv[optind + 1], "r");
+        
+        if (filePointer == NULL) {
+            fprintf(stderr, "Error: Could not open file.\n");
+            return 1;
+        }
     }
 
     regex_t reegex;
